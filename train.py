@@ -29,8 +29,10 @@ def build_files(data_path, tokenized_data_path, num_pieces, full_tokenizer, min_
         sublines = [full_tokenizer.convert_tokens_to_ids(line) for line in sublines]
         full_line = []
         for subline in sublines:
+            # Add MASK at the beginning of the article to indicate the beginning of the article
             full_line.append(full_tokenizer.convert_tokens_to_ids('[MASK]'))  # 文章开头添加MASK表示文章开始
             full_line.extend(subline)
+            # Add CLS between articles to indicate the end of the article
             full_line.append(full_tokenizer.convert_tokens_to_ids('[CLS]'))  # 文章之间添加CLS表示文章结束
         with open(tokenized_data_path + 'tokenized_train_{}.txt'.format(i), 'w') as f:
             for id in full_line:
@@ -46,24 +48,24 @@ def main():
     parser.add_argument('--tokenizer_path', default='cache/vocab_small.txt', type=str, required=False, help='选择词库')
     parser.add_argument('--raw_data_path', default='data/train.json', type=str, required=False, help='原始训练语料')
     parser.add_argument('--tokenized_data_path', default='data/tokenized/', type=str, required=False,
-                        help='tokenized语料存放位置')
-    parser.add_argument('--raw', action='store_true', help='是否先做tokenize')
+                        help='tokenized语料存放位置')  # tokenized corpus storage location
+    parser.add_argument('--raw', action='store_true', help='是否先做tokenize')  # Whether to do tokenize first
     parser.add_argument('--epochs', default=5, type=int, required=False, help='训练循环')
     parser.add_argument('--batch_size', default=8, type=int, required=False, help='训练batch size')
     parser.add_argument('--lr', default=1.5e-4, type=float, required=False, help='学习率')
     parser.add_argument('--warmup_steps', default=2000, type=int, required=False, help='warm up步数')
     parser.add_argument('--log_step', default=1, type=int, required=False, help='多少步汇报一次loss，设置为gradient accumulation的整数倍')
-    parser.add_argument('--stride', default=768, type=int, required=False, help='训练时取训练数据的窗口步长')
+    parser.add_argument('--stride', default=768, type=int, required=False, help='训练时取训练数据的窗口步长')  # Take the window step size of the training data during training
     parser.add_argument('--gradient_accumulation', default=1, type=int, required=False, help='梯度积累')
     parser.add_argument('--fp16', action='store_true', help='混合精度')
     parser.add_argument('--fp16_opt_level', default='O1', type=str, required=False)
     parser.add_argument('--max_grad_norm', default=1.0, type=float, required=False)
-    parser.add_argument('--num_pieces', default=100, type=int, required=False, help='将训练语料分成多少份')
+    parser.add_argument('--num_pieces', default=100, type=int, required=False, help='将训练语料分成多少份')  # How many portions of the training corpus
     parser.add_argument('--min_length', default=128, type=int, required=False, help='最短收录文章长度')
     parser.add_argument('--output_dir', default='model/', type=str, required=False, help='模型输出路径')
-    parser.add_argument('--pretrained_model', default='', type=str, required=False, help='模型训练起点路径')
+    parser.add_argument('--pretrained_model', default='', type=str, required=False, help='模型训练起点路径')  # Model training starting path
     parser.add_argument('--writer_dir', default='tensorboard_summary/', type=str, required=False, help='Tensorboard路径')
-    parser.add_argument('--segment', action='store_true', help='中文以词为单位')
+    parser.add_argument('--segment', action='store_true', help='中文以词为单位')  # Chinese words
     parser.add_argument('--bpe_token', action='store_true', help='subword')
     parser.add_argument('--encoder_json', default="tokenizations/encoder.json", type=str, help="encoder.json")
     parser.add_argument('--vocab_bpe', default="tokenizations/vocab.bpe", type=str, help="vocab.bpe")
